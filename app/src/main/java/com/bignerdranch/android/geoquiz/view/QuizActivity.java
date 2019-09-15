@@ -1,4 +1,4 @@
-package com.bignerdranch.android.geoquiz;
+package com.bignerdranch.android.geoquiz.view;
 
 import android.os.Bundle;
 import android.view.View;
@@ -7,16 +7,18 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bignerdranch.android.geoquiz.model.Quiz;
+import com.bignerdranch.android.geoquiz.R;
+import com.bignerdranch.android.geoquiz.presenter.IQuizPresenter;
+import com.bignerdranch.android.geoquiz.presenter.QuizPresenter;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements IQuizView {
 
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
     private TextView mQuestionTextView;
     private TextView mResultTextView;
-    private Quiz quiz;
+    private IQuizPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class QuizActivity extends AppCompatActivity {
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkAnswer(true);
+                presenter.onTrueBtnClicked();
             }
         });
 
@@ -37,7 +39,7 @@ public class QuizActivity extends AppCompatActivity {
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkAnswer(false);
+                presenter.onFalseBtnClicked();
             }
         });
 
@@ -45,27 +47,19 @@ public class QuizActivity extends AppCompatActivity {
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToNextQuestion();
+                presenter.onNextBtnClicked();
             }
         });
 
-        quiz = new Quiz();
-        updateQuestionView();
-        reset();
+        presenter = new QuizPresenter(this);
     }
 
-    private void goToNextQuestion() {
-        quiz.nextQuestion();
-        updateQuestionView();
-        reset();
-    }
-
-    private void checkAnswer(boolean userPressedTrue) {
+    @Override
+    public void updateResult(boolean userAnsweredCorrectly) {
         int answerColor;
-        boolean answerIsTrue = quiz.getCurrentQuestion().isAnswerTrue();
         int messageResId;
 
-        if (userPressedTrue == answerIsTrue) {
+        if (userAnsweredCorrectly) {
             messageResId = R.string.correct_toast;
             answerColor = getResources().getColor(R.color.green);
         } else {
@@ -75,24 +69,19 @@ public class QuizActivity extends AppCompatActivity {
 
         mResultTextView.setText(messageResId);
         mResultTextView.setTextColor(answerColor);
-        onQuestionAnswered();
-    }
 
-    private void updateQuestionView() {
-        mQuestionTextView.setText(quiz.getCurrentQuestion().getTextResId());
-    }
-
-    private void reset() {
-        mResultTextView.setText("");
-        mTrueButton.setEnabled(true);
-        mFalseButton.setEnabled(true);
-        mNextButton.setEnabled(false);
-    }
-
-    private void onQuestionAnswered() {
         mTrueButton.setEnabled(false);
         mFalseButton.setEnabled(false);
         mNextButton.setEnabled(true);
     }
 
+    @Override
+    public void updateQuestion(int questionTextResId) {
+        mQuestionTextView.setText(questionTextResId);
+
+        mResultTextView.setText("");
+        mTrueButton.setEnabled(true);
+        mFalseButton.setEnabled(true);
+        mNextButton.setEnabled(false);
+    }
 }
