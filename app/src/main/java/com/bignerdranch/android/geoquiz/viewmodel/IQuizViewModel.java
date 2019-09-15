@@ -1,6 +1,6 @@
-package com.bignerdranch.android.geoquiz.presenter;
+package com.bignerdranch.android.geoquiz.viewmodel;
 
-public interface IQuizPresenter {
+public interface IQuizViewModel {
     void onTrueBtnClicked();
     void onFalseBtnClicked();
     void onNextBtnClicked();
